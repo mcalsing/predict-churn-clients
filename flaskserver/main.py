@@ -5,6 +5,7 @@ from sklearn.preprocessing import OneHotEncoder
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import precision_score, recall_score
 import pickle
 app = Flask(__name__)
 
@@ -35,19 +36,15 @@ label_ecoder = LabelEncoder()
 y = label_ecoder.fit_transform(y)
 
 
-# Divisão da base de dados entre treino e teste
-x_treino, x_teste, y_treino, y_teste = train_test_split(x, y, stratify=y, random_state=5)
+# Divisão da base de dados entre treino, teste e validação
+x, x_teste, y, y_teste = train_test_split(x, y, test_size=0.2, stratify=y, random_state=5)
+x_treino, x_val, y_treino, y_val = train_test_split(x, y, stratify=y, random_state=5)
 
 
-# Treinando o modelo o algoritmo de machine learning
+# Treinando o modelo de machine learning
 arvore = DecisionTreeClassifier(max_depth=8, random_state=5)
 arvore.fit(x_treino, y_treino)
-
-
-# Testando o modelo
-# print(f'Acurácia de treino: {round(arvore.score(x_treino, y_treino)*100, 2)}%')
-# print(f'Acurácia de teste: {round(arvore.score(x_teste, y_teste)*100, 2)}%')
-
+y_previsto = arvore.predict(x_val)
 
 # Exportando o modelo
 with open('modelo_onehot.pkl', 'wb') as arquivo:
@@ -59,6 +56,10 @@ with open('modelo_arvore.pkl', 'wb') as arquivo:
 
 @app.route("/predict", methods=["POST"])
 def predict():
+    # Testando o modelo
+    acuracia = round(arvore.score(x_teste, y_teste)*100, 2)
+    precisao = round(precision_score(y_val, y_previsto)*100, 2)
+    recall = round(recall_score(y_val, y_previsto)*100, 2)
 
     data = request.get_json()
     print(data)
@@ -74,8 +75,17 @@ def predict():
     previsao = modelo_arvore.predict(novo_dado_transformado)
     print('previsao do modelo =', previsao)
 
-    if (previsao == [0]): return 'O modelo previu a não evasão do cliente'
-    else: return 'O modelo previu a evasão do cliente'
+    metricas = {
+        "acuracia": acuracia,
+        "precisao": precisao,
+        "recall": recall,
+    }
+
+    if (previsao == [0]):
+        print(type(metricas))
+        return metricas
+    else:
+        return metricas
 
 
 @app.route("/hello")

@@ -510,6 +510,7 @@ public class Main extends javax.swing.JFrame {
 
     // Cria dados para enviar no corpo da requisição
     Map<String, List<Object>> data = new HashMap<>();
+    // ArrayList<String> metricas = new ArrayList<String>();
 
     data.put("score_credito", Arrays.asList(score));
     data.put("pais", Arrays.asList(pais));
@@ -553,8 +554,8 @@ public class Main extends javax.swing.JFrame {
     // Lê a resposta do Python
     InputStream inputStream = connection.getInputStream();
     String responsePython = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-
-    returnLabel.setText(responsePython);
+    Map<String,Object> result = new ObjectMapper().readValue(responsePython, HashMap.class);
+    returnLabel.setText(String.valueOf(result.get("recall")));
   }
 
   private void sexoBoxActionPerformed(java.awt.event.ActionEvent evt) {
