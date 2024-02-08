@@ -62,8 +62,6 @@ def predict():
     recall = round(recall_score(y_val, y_previsto)*100, 2)
 
     data = request.get_json()
-    print(data)
-    # return 'testeeee'
 
     # Converte os dados de entrada em um array numpy
     data_frame = pd.DataFrame(data)
@@ -82,9 +80,10 @@ def predict():
     }
 
     if (previsao == [0]):
-        print(type(metricas))
+        metricas.update({"predicao": "Não Cancela"})
         return metricas
     else:
+        metricas.update({"predicao": "Cancela"})
         return metricas
 
 
