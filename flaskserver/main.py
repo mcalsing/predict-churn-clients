@@ -57,9 +57,9 @@ with open('modelo_arvore.pkl', 'wb') as arquivo:
 @app.route("/predict", methods=["POST"])
 def predict():
     # Testando o modelo
-    acuracia = round(arvore.score(x_teste, y_teste)*100, 2)
-    precisao = round(precision_score(y_val, y_previsto)*100, 2)
-    recall = round(recall_score(y_val, y_previsto)*100, 2)
+    acuracia = round(arvore.score(x_teste, y_teste)*100, 1)
+    precisao = round(precision_score(y_val, y_previsto)*100, 1)
+    recall = round(recall_score(y_val, y_previsto)*100, 1)
 
     data = request.get_json()
 
@@ -80,10 +80,10 @@ def predict():
     }
 
     if (previsao == [0]):
-        metricas.update({"predicao": "Não Cancela"})
+        metricas.update({"predicao": "Não cancela o serviço"})
         return metricas
     else:
-        metricas.update({"predicao": "Cancela"})
+        metricas.update({"predicao": "Cancela o serviço"})
         return metricas
 
 
